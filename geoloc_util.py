@@ -1,35 +1,16 @@
+# geoloc_util.py
 import argparse
 import requests
 import sys
+from typing import List, Dict
 import os
 from dotenv import load_dotenv
-from typing import List, Dict
 
+# Load API key from environment variables
 load_dotenv()
 API_KEY = os.getenv('OPENWEATHER_API_KEY')
 BASE_URL = "http://api.openweathermap.org/geo/1.0"
 
-def main(locations: List[str]) -> None:
-    """Main function to process multiple locations."""
-    for location in locations:
-        result = process_location(location)
-        if result:
-            print(f"\nLocation Information for: {location}")
-            print("-" * 40)
-            for key, value in result.items():
-                print(f"{key.capitalize()}: {value}")
-
-def process_location(location: str) -> Dict:
-    """Process a single location, determining if it's a zipcode or city,state."""
-    try:
-        if ',' in location:
-            return get_location_by_city_state(location)
-        else:
-            return get_location_by_zipcode(location)
-    except Exception as e:
-        print(f"Error processing location '{location}': {str(e)}")
-        return None
-    
 def get_location_by_city_state(location: str) -> Dict:
     """Get coordinates for a city,state combination."""
     city, state = [x.strip() for x in location.split(',')]
@@ -62,12 +43,15 @@ def get_location_by_zipcode(zipcode: str) -> Dict:
         'appid': API_KEY
     }
     
-    response = requests.get(f"{BASE_URL}/zip", params=params)
-    response.raise_for_status()
-    
-    result = response.json()
-    if 'cod' in result and result['cod'] != 200:
-        raise ValueError(f"No results found for zipcode {zipcode}")
+    try:
+        response = requests.get(f"{BASE_URL}/zip", params=params)
+        response.raise_for_status()
+        result = response.json()
+        
+        if 'cod' in result and result['cod'] != 200:
+            raise ValueError(f"No results found for zipcode {zipcode}")
+    except requests.exceptions.HTTPError:
+        raise ValueError(f"Invalid zipcode format or not found: {zipcode}")
     
     return {
         'name': result['name'],
@@ -76,6 +60,27 @@ def get_location_by_zipcode(zipcode: str) -> Dict:
         'lon': result['lon'],
         'zip': zipcode
     }
+
+def process_location(location: str) -> Dict:
+    """Process a single location, determining if it's a zipcode or city,state."""
+    try:
+        if ',' in location:
+            return get_location_by_city_state(location)
+        else:
+            return get_location_by_zipcode(location)
+    except Exception as e:
+        print(f"Error processing location '{location}': {str(e)}")
+        return None
+
+def main(locations: List[str]) -> None:
+    """Main function to process multiple locations."""
+    for location in locations:
+        result = process_location(location)
+        if result:
+            print(f"\nLocation Information for: {location}")
+            print("-" * 40)
+            for key, value in result.items():
+                print(f"{key.capitalize()}: {value}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Get geolocation information for US locations')
