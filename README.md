@@ -2,6 +2,8 @@
 
 A command line tool that gets location info using OpenWeather API.
 
+I didn't want to attach the take home test pdf in a public repo. 
+
 ## Quick Setup
 This what I've done for venv, I didn't commit the .venv folder
 ```bash
