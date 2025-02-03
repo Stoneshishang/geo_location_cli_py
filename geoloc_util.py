@@ -47,7 +47,6 @@ def get_location_by_zipcode(zipcode: str) -> Dict:
         response = requests.get(f"{BASE_URL}/zip", params=params)
         response.raise_for_status()
         result = response.json()
-        
         if 'cod' in result and result['cod'] != 200:
             raise ValueError(f"No results found for zipcode {zipcode}")
     except requests.exceptions.HTTPError:
@@ -63,6 +62,9 @@ def get_location_by_zipcode(zipcode: str) -> Dict:
 
 def process_location(location: str) -> Dict:
     """Process a single location, determining if it's a zipcode or city,state."""
+    if not location or not location.strip():
+        raise ValueError("Location cannot be empty")
+        
     try:
         if ',' in location:
             return get_location_by_city_state(location)
