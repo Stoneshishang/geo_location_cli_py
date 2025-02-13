@@ -28,6 +28,7 @@ class TestGeolocationIntegration:
         assert "Seattle" in output
         assert "New York" in output
         assert "Chicago" in output
+        assert "Beverly Hills" in output 
 
     def test_mixed_valid_invalid_locations(self):
         """2. Test handling a mix of valid and invalid locations"""

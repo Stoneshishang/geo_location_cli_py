@@ -29,7 +29,7 @@ According to the test file: `
 python geoloc_util.py "Chicago, IL"
 
 # Multiple locations
-geoloc-util “Madison, WI” “12345” “Chicago, IL” “10001”
+python geoloc-util.py “Madison, WI” “12345” “Chicago, IL” “10001”
 ```
 
 ## Test
